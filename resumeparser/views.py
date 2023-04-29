@@ -6,15 +6,15 @@ from django.core.files import File
 from django.core.files.storage import FileSystemStorage
 from pyresparser import ResumeParser
 import shutil ,os
+from urllib.parse import urlencode,quote_plus
 @api_view(["GET","POST"])
 def resumeParser(request):
     if( os.path.exists(settings.MEDIA_ROOT)):
         shutil.rmtree(settings.MEDIA_ROOT)
     myfile = request.FILES['filename']
-    print("here")
     fs = FileSystemStorage()
     filename = fs.save(myfile.name, myfile)
-    print(settings.MEDIA_ROOT+"\\"+myfile.name)
+    file_path ="/media/"+myfile.name
+    file_url = request.build_absolute_uri(file_path)    
     data = ResumeParser(settings.MEDIA_ROOT+"\\"+myfile.name).get_extracted_data()
-    print("not hehre")
-    return  JsonResponse({"data":data})
+    return  JsonResponse({"data":data,"file_url":file_url})
